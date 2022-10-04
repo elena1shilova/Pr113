@@ -9,7 +9,7 @@ import java.sql.Statement;
 import java.util.List;
 
 public class UserDaoJDBCImpl extends Util implements UserDao {
-    Connection connection = Util.getConnection();
+    //Connection connection = Util.getConnection();
     public UserDaoJDBCImpl() {
 
     }
@@ -22,16 +22,36 @@ public class UserDaoJDBCImpl extends Util implements UserDao {
 
     }
 
-    public void saveUser(String name, String lastName, byte age) { //сохр пользователя
-
-        String mysql = "INSERT INTO users (name, lastName, age) VALUES (name, lastName, age)";
+    public void saveUser(String name, String lastName, byte age) throws SQLException { //сохр пользователя
+        PreparedStatement preparedStatement = null;
+        String mysql = "INSERT INTO users (NAME, LASTNAME, AGE) VALUES (?, ?, ?)";
         try {
-            Statement statement = connection.createStatement();
-            statement.execute(mysql);
-            System.out.println("gggg");
+            preparedStatement = getConnection().prepareStatement(mysql);
+            preparedStatement.setString(1, name);
+            preparedStatement.setString(2, lastName);
+            preparedStatement.setByte(3,age);
+            preparedStatement.executeUpdate();
+            System.out.println(preparedStatement.executeUpdate());
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            if (preparedStatement != null) {
+                preparedStatement.close();
+            }
+            if (getConnection() != null) {
+                getConnection().close();
+            }
+        }
+        /*String mysql = "INSERT INTO users (NAME, LASTNAME, AGE) VALUES (name, lastName, age)";
+        Statement statement = null;
+        try {
+            statement = Util.getConnection().createStatement();
+            int rows = statement.executeUpdate(mysql);
+            //System.out.println("gggg");
+            System.out.printf("Added %d rows", rows);
         } catch (SQLException e) {
             throw new RuntimeException(e);
-        }
+        }*/
 
     }
 

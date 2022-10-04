@@ -13,7 +13,7 @@ public class Util {
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
-        System.out.println("EEEEEEs");
+        //System.out.println("EEEEEEs");
         return conn;
     }
 }
