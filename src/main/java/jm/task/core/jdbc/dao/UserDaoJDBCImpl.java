@@ -89,6 +89,7 @@ public class UserDaoJDBCImpl implements UserDao {
             preparedStatement = connection.prepareStatement(mysql);
             preparedStatement.setLong(1, id);
             preparedStatement.executeUpdate();
+            System.out.println("Успех удаления юзера");
         } catch (SQLException e) {
             e.printStackTrace();
         } finally {
@@ -109,7 +110,7 @@ public class UserDaoJDBCImpl implements UserDao {
         }
     }
 
-    public List<User> getAllUsers() {
+    public List<User> getAllUsers() { //список всех адресов
         List<User> userList = new ArrayList<>();
         String mysql = "SELECT * FROM users";
         Statement statement = null;
@@ -124,6 +125,7 @@ public class UserDaoJDBCImpl implements UserDao {
                 user.setAge(resultSet.getByte("AGE"));
                 userList.add(user);
             }
+            System.out.println("Успех получения списка всех юзеров");
         } catch (SQLException e) {
             e.printStackTrace();
         } finally {
@@ -144,16 +146,14 @@ public class UserDaoJDBCImpl implements UserDao {
         }
         //System.out.println(Arrays.toString(userList.toArray()));
         return userList;
-    } //список всех адресов
-
-
+    }
     public void cleanUsersTable() { //чистая т ю
         PreparedStatement preparedStatement = null;
         String mysql = "TRUNCATE TABLE users";
         try {
             preparedStatement = connection.prepareStatement(mysql);
-            //preparedStatement.setLong();
             preparedStatement.executeUpdate();
+            System.out.println("Успех очищения таблицы");
         } catch (SQLException e) {
             e.printStackTrace();
         } finally {
