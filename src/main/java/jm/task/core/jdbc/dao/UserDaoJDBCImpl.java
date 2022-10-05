@@ -7,106 +7,114 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class UserDaoJDBCImpl extends Util implements UserDao {
-    //Connection connection = Util.getConnection();
+public class UserDaoJDBCImpl implements UserDao {
+    private final Connection connection = Util.getConnection();
     public UserDaoJDBCImpl() {
 
     }
-
-    public void createUsersTable() throws SQLException { //создать табл пользователей
+    public void createUsersTable() { //создать табл пользователей
         PreparedStatement preparedStatement = null;
-        String mysql = "CREATE TABLE `tableuser`.`users` (\n" +
+        String mysql = "CREATE TABLE IF NOT EXISTS `tableuser`.`users` (\n" +
                 "  `ID` INT NOT NULL AUTO_INCREMENT,\n" +
                 "  `NAME` VARCHAR(45) NOT NULL,\n" +
                 "  `LASTNAME` VARCHAR(45) NOT NULL,\n" +
-                "  `AGE` VARCHAR(45) NOT NULL,\n" +
+                "  `AGE` INT NOT NULL,\n" +
                 "        PRIMARY KEY (`ID`, `NAME`, `LASTNAME`, `AGE`))\n" +
                 "        ENGINE = InnoDB\n" +
                 "        DEFAULT CHARACTER SET = utf8";
         try {
-            preparedStatement = getConnection().prepareStatement(mysql);
-
-            //preparedStatement.executeUpdate();
-            System.out.println(preparedStatement.executeUpdate());
-        } catch (SQLSyntaxErrorException e) {
+            connection.setAutoCommit(false);
+            preparedStatement = connection.prepareStatement(mysql);
+            preparedStatement.executeUpdate();
+            System.out.println("Успех создания");
+            connection.commit();
+        } catch (SQLException e) {
             System.out.println("Таблица уже существует");
-
-        } finally {
-            if (preparedStatement != null) {
+            try {
+                connection.rollback();
                 preparedStatement.close();
-            }
-            if (getConnection() != null) {
-                getConnection().close();
+                connection.close();
+            } catch (Exception ignore) {
+                e.printStackTrace();
             }
         }
-
     }
-
-    public void dropUsersTable() throws SQLException { //удалить табл пользователей
+    public void dropUsersTable() { //удалить табл пользователей
         PreparedStatement preparedStatement = null;
-        String mysql = "DROP TABLE users";
+        String mysql = "DROP TABLE IF EXISTS users";
         try {
-            preparedStatement = getConnection().prepareStatement(mysql);
-            System.out.println(preparedStatement.executeUpdate());
-        } catch (SQLSyntaxErrorException e) {
+            connection.setAutoCommit(false);
+            preparedStatement = connection.prepareStatement(mysql);
+            preparedStatement.executeUpdate();
+            System.out.println("Успех удаления");
+            connection.commit();
+        } catch (Throwable e) {
             System.out.println("Таблица не существует");
-        } finally {
-            if (preparedStatement != null) {
+            try {
                 preparedStatement.close();
-            }
-            if (getConnection() != null) {
-                getConnection().close();
+                connection.close();
+                connection.rollback();
+            } catch (Exception ignore) {
+                e.printStackTrace();
             }
         }
     }
-
-    public void saveUser(String name, String lastName, byte age) throws SQLException { //сохр пользователя
+    public void saveUser(String name, String lastName, byte age) { //сохр пользователя
         PreparedStatement preparedStatement = null;
         String mysql = "INSERT INTO users (NAME, LASTNAME, AGE) VALUES (?, ?, ?)";
         try {
-            preparedStatement = getConnection().prepareStatement(mysql);
+            connection.setAutoCommit(false);
+            preparedStatement = connection.prepareStatement(mysql);
             preparedStatement.setString(1, name);
             preparedStatement.setString(2, lastName);
             preparedStatement.setByte(3,age);
-            //preparedStatement.executeUpdate();
-            System.out.println(preparedStatement.executeUpdate());
+            preparedStatement.executeUpdate();
+            System.out.println("Успех добавления");
+            connection.commit();
         } catch (SQLException e) {
-            e.printStackTrace();
-        } finally {
-            if (preparedStatement != null) {
+            System.out.println("Ошибка добавления");
+            try {
+                connection.rollback();
                 preparedStatement.close();
-            }
-            if (getConnection() != null) {
-                getConnection().close();
+                connection.close();
+            } catch (Exception ignore) {
+                e.printStackTrace();
             }
         }
     }
-
-    public void removeUserById(long id) throws SQLException { //удалить юзера по ид
+    public void removeUserById(long id) { //удалить юзера по ид
         PreparedStatement preparedStatement = null;
         String mysql = "DELETE FROM users WHERE ID = ?";
         try {
-            preparedStatement = getConnection().prepareStatement(mysql);
+            preparedStatement = connection.prepareStatement(mysql);
             preparedStatement.setLong(1, id);
-            System.out.println(preparedStatement.executeUpdate());;
+            preparedStatement.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
         } finally {
             if (preparedStatement != null) {
-                preparedStatement.close();
+                try {
+                    preparedStatement.close();
+                } catch (SQLException e) {
+                    throw new RuntimeException(e);
+                }
             }
-            if (getConnection() != null) {
-                getConnection().close();
+            if (connection != null) {
+                try {
+                    connection.close();
+                } catch (SQLException e) {
+                    throw new RuntimeException(e);
+                }
             }
         }
     }
 
-    public List<User> getAllUsers() throws SQLException {
+    public List<User> getAllUsers() {
         List<User> userList = new ArrayList<>();
         String mysql = "SELECT * FROM users";
         Statement statement = null;
         try {
-            statement = getConnection().createStatement();
+            statement = connection.createStatement();
             ResultSet resultSet = statement.executeQuery(mysql);
             while (resultSet.next()){
                 User user = new User();
@@ -120,10 +128,18 @@ public class UserDaoJDBCImpl extends Util implements UserDao {
             e.printStackTrace();
         } finally {
             if (statement != null) {
-                statement.close();
+                try {
+                    statement.close();
+                } catch (SQLException e) {
+                    throw new RuntimeException(e);
+                }
             }
-            if (getConnection() != null) {
-                getConnection().close();
+            if (connection != null) {
+                try {
+                    connection.close();
+                } catch (SQLException e) {
+                    throw new RuntimeException(e);
+                }
             }
         }
         //System.out.println(Arrays.toString(userList.toArray()));
@@ -131,21 +147,29 @@ public class UserDaoJDBCImpl extends Util implements UserDao {
     } //список всех адресов
 
 
-    public void cleanUsersTable() throws SQLException { //чистая т ю
+    public void cleanUsersTable() { //чистая т ю
         PreparedStatement preparedStatement = null;
-        String mysql = "TRUNCATE users";
+        String mysql = "TRUNCATE TABLE users";
         try {
-            preparedStatement = getConnection().prepareStatement(mysql);
+            preparedStatement = connection.prepareStatement(mysql);
             //preparedStatement.setLong();
-            System.out.println(preparedStatement.executeUpdate());;
+            preparedStatement.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
         } finally {
             if (preparedStatement != null) {
-                preparedStatement.close();
+                try {
+                    preparedStatement.close();
+                } catch (SQLException e) {
+                    throw new RuntimeException(e);
+                }
             }
-            if (getConnection() != null) {
-                getConnection().close();
+            if (connection != null) {
+                try {
+                    connection.close();
+                } catch (SQLException e) {
+                    throw new RuntimeException(e);
+                }
             }
         }
     }
