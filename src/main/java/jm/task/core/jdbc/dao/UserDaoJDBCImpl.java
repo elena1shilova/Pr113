@@ -28,7 +28,7 @@ public class UserDaoJDBCImpl implements UserDao {
             preparedStatement.executeUpdate();
             System.out.println("Успех создания");
             connection.commit();
-        } catch (SQLException e) {
+        } catch (Throwable e) {
             System.out.println("Таблица уже существует");
             try {
                 connection.rollback();
@@ -71,7 +71,7 @@ public class UserDaoJDBCImpl implements UserDao {
             preparedStatement.executeUpdate();
             System.out.println("Успех добавления");
             connection.commit();
-        } catch (SQLException e) {
+        } catch (Throwable e) {
             System.out.println("Ошибка добавления");
             try {
                 connection.rollback();
@@ -86,26 +86,20 @@ public class UserDaoJDBCImpl implements UserDao {
         PreparedStatement preparedStatement = null;
         String mysql = "DELETE FROM users WHERE ID = ?";
         try {
+            connection.setAutoCommit(false);
             preparedStatement = connection.prepareStatement(mysql);
             preparedStatement.setLong(1, id);
             preparedStatement.executeUpdate();
             System.out.println("Успех удаления юзера");
-        } catch (SQLException e) {
-            e.printStackTrace();
-        } finally {
-            if (preparedStatement != null) {
-                try {
-                    preparedStatement.close();
-                } catch (SQLException e) {
-                    throw new RuntimeException(e);
-                }
-            }
-            if (connection != null) {
-                try {
-                    connection.close();
-                } catch (SQLException e) {
-                    throw new RuntimeException(e);
-                }
+            connection.commit();
+        } catch (Throwable e) {
+            System.out.println("Ошибка удаления");
+            try {
+                connection.rollback();
+                preparedStatement.close();
+                connection.close();
+            } catch (Exception ignore) {
+                e.printStackTrace();
             }
         }
     }
@@ -115,6 +109,7 @@ public class UserDaoJDBCImpl implements UserDao {
         String mysql = "SELECT * FROM users";
         Statement statement = null;
         try {
+            connection.setAutoCommit(false);
             statement = connection.createStatement();
             ResultSet resultSet = statement.executeQuery(mysql);
             while (resultSet.next()){
@@ -126,22 +121,15 @@ public class UserDaoJDBCImpl implements UserDao {
                 userList.add(user);
             }
             System.out.println("Успех получения списка всех юзеров");
-        } catch (SQLException e) {
-            e.printStackTrace();
-        } finally {
-            if (statement != null) {
-                try {
-                    statement.close();
-                } catch (SQLException e) {
-                    throw new RuntimeException(e);
-                }
-            }
-            if (connection != null) {
-                try {
-                    connection.close();
-                } catch (SQLException e) {
-                    throw new RuntimeException(e);
-                }
+            connection.commit();
+        } catch (Throwable e) {
+            System.out.println("Ошибка получения списка");
+            try {
+                connection.rollback();
+                statement.close();
+                connection.close();
+            } catch (Exception ignore) {
+                e.printStackTrace();
             }
         }
         //System.out.println(Arrays.toString(userList.toArray()));
@@ -151,25 +139,19 @@ public class UserDaoJDBCImpl implements UserDao {
         PreparedStatement preparedStatement = null;
         String mysql = "TRUNCATE TABLE users";
         try {
+            connection.setAutoCommit(false);
             preparedStatement = connection.prepareStatement(mysql);
             preparedStatement.executeUpdate();
             System.out.println("Успех очищения таблицы");
-        } catch (SQLException e) {
-            e.printStackTrace();
-        } finally {
-            if (preparedStatement != null) {
-                try {
-                    preparedStatement.close();
-                } catch (SQLException e) {
-                    throw new RuntimeException(e);
-                }
-            }
-            if (connection != null) {
-                try {
-                    connection.close();
-                } catch (SQLException e) {
-                    throw new RuntimeException(e);
-                }
+            connection.commit();
+        } catch (Throwable e) {
+            System.out.println("Ошибка очищения");
+            try {
+                connection.rollback();
+                preparedStatement.close();
+                connection.close();
+            } catch (Exception ignore) {
+                e.printStackTrace();
             }
         }
     }
