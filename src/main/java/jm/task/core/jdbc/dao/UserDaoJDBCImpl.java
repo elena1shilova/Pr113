@@ -13,12 +13,51 @@ public class UserDaoJDBCImpl extends Util implements UserDao {
 
     }
 
-    public void createUsersTable() { //создать табл пользователей
+    public void createUsersTable() throws SQLException { //создать табл пользователей
+        PreparedStatement preparedStatement = null;
+        String mysql = "CREATE TABLE `tableuser`.`users` (\n" +
+                "  `ID` INT NOT NULL AUTO_INCREMENT,\n" +
+                "  `NAME` VARCHAR(45) NOT NULL,\n" +
+                "  `LASTNAME` VARCHAR(45) NOT NULL,\n" +
+                "  `AGE` VARCHAR(45) NOT NULL,\n" +
+                "        PRIMARY KEY (`ID`, `NAME`, `LASTNAME`, `AGE`))\n" +
+                "        ENGINE = InnoDB\n" +
+                "        DEFAULT CHARACTER SET = utf8";
+        try {
+            preparedStatement = getConnection().prepareStatement(mysql);
+
+            //preparedStatement.executeUpdate();
+            System.out.println(preparedStatement.executeUpdate());
+        } catch (SQLSyntaxErrorException e) {
+            System.out.println("Таблица уже существует");
+
+        } finally {
+            if (preparedStatement != null) {
+                preparedStatement.close();
+            }
+            if (getConnection() != null) {
+                getConnection().close();
+            }
+        }
 
     }
 
-    public void dropUsersTable() { //удалить табл пользователей
-
+    public void dropUsersTable() throws SQLException { //удалить табл пользователей
+        PreparedStatement preparedStatement = null;
+        String mysql = "DROP TABLE users";
+        try {
+            preparedStatement = getConnection().prepareStatement(mysql);
+            System.out.println(preparedStatement.executeUpdate());
+        } catch (SQLSyntaxErrorException e) {
+            System.out.println("Таблица не существует");
+        } finally {
+            if (preparedStatement != null) {
+                preparedStatement.close();
+            }
+            if (getConnection() != null) {
+                getConnection().close();
+            }
+        }
     }
 
     public void saveUser(String name, String lastName, byte age) throws SQLException { //сохр пользователя
@@ -30,7 +69,7 @@ public class UserDaoJDBCImpl extends Util implements UserDao {
             preparedStatement.setString(2, lastName);
             preparedStatement.setByte(3,age);
             //preparedStatement.executeUpdate();
-            System.out.println(preparedStatement.executeUpdate());//убрать печать перед отправкой!!!!!!!!!
+            System.out.println(preparedStatement.executeUpdate());
         } catch (SQLException e) {
             e.printStackTrace();
         } finally {
