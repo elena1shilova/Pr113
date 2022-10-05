@@ -19,10 +19,10 @@ public class Main {
         //userDao.saveUser("Name3", "LastName3", (byte) 3);
         //userDao.saveUser("Name5", "LastName4", (byte) 4);
 
-        //userDao.removeUserById(14);
+        //userDao.removeUserById(1);
         //userDao.getAllUsers();
         //userDao.cleanUsersTable();
-        userDao.dropUsersTable();
+        //userDao.dropUsersTable();
     }
 
 
