@@ -1,42 +1,93 @@
 package jm.task.core.jdbc.dao;
 
 import jm.task.core.jdbc.model.User;
+import jm.task.core.jdbc.util.Util;
+import org.hibernate.Session;
+import org.hibernate.Transaction;
+import org.hibernate.query.Query;
 
 import java.util.List;
 
 public class UserDaoHibernateImpl implements UserDao {
+    Session session = Util.getSessionFactory().getCurrentSession();
     public UserDaoHibernateImpl() {
 
     }
 
 
     @Override
-    public void createUsersTable() {
+    public void createUsersTable() { //создать таблицу
+        session.beginTransaction();
+        String mysql = "CREATE TABLE IF NOT EXISTS `tableuser`.`users` (\n" +
+                "  `ID` INT NOT NULL AUTO_INCREMENT,\n" +
+                "  `NAME` VARCHAR(45) NOT NULL,\n" +
+                "  `LASTNAME` VARCHAR(45) NOT NULL,\n" +
+                "  `AGE` INT NOT NULL,\n" +
+                "        PRIMARY KEY (`ID`, `NAME`, `LASTNAME`, `AGE`))\n" +
+                "        ENGINE = InnoDB\n" +
+                "        DEFAULT CHARACTER SET = utf8";
+        //Query query = session.createSQLQuery(mysql).addEntity(User.class);
+        //session.getTransaction().commit();
+        try {
+            Query query = session.createSQLQuery(mysql).addEntity(User.class);
+            session.getTransaction().commit();
+            System.out.println("Успех создания");
+        } catch (Throwable e) {
+            System.out.println("Таблица уже существует");
+            try {
+                session.getTransaction().rollback();
+                session.close();
+            } catch (Exception ew) {
+                e.printStackTrace();
+            }
+
+        }
+    }
+
+    @Override
+    public void dropUsersTable() { //удалить таблицу
 
     }
 
     @Override
-    public void dropUsersTable() {
+    public void saveUser(String name, String lastName, byte age) { //сохранить пользователя
+        session.beginTransaction();
+        session.save(new User(name, lastName, age));
+        session.getTransaction().commit();
+        /*Transaction transaction = null;
+        Session session = null;
+        User userss = new User(name, lastName, age);
+        try  {
+            session = Util.getSessionFactory().openSession();
+            // start a transaction
+            transaction = session.beginTransaction();
 
+            // save the student object
+            session.save(userss);
+            //session.save(lastName);
+            //session.save(age);
+            // commit transaction
+            transaction.commit();
+        } catch (Throwable e) {
+            if (transaction != null) {
+                transaction.rollback();
+            }
+            e.printStackTrace();
+        }*/
     }
 
     @Override
-    public void saveUser(String name, String lastName, byte age) {
-
-    }
-
-    @Override
-    public void removeUserById(long id) {
+    public void removeUserById(long id) { //уд по ид
 
     }
 
     @Override
     public List<User> getAllUsers() {
         return null;
-    }
+    } //список всех адресов
 
     @Override
-    public void cleanUsersTable() {
+    public void cleanUsersTable() { //чистая т ю
 
     }
 }

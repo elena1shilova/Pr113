@@ -13,7 +13,7 @@ public class UserDaoJDBCImpl implements UserDao {
 
     }
     public void createUsersTable() { //создать табл пользователей
-        PreparedStatement preparedStatement = null;
+        Statement statement = null;
         String mysql = "CREATE TABLE IF NOT EXISTS `tableuser`.`users` (\n" +
                 "  `ID` INT NOT NULL AUTO_INCREMENT,\n" +
                 "  `NAME` VARCHAR(45) NOT NULL,\n" +
@@ -24,15 +24,15 @@ public class UserDaoJDBCImpl implements UserDao {
                 "        DEFAULT CHARACTER SET = utf8";
         try {
             connection.setAutoCommit(false);
-            preparedStatement = connection.prepareStatement(mysql);
-            preparedStatement.executeUpdate();
+            statement = connection.createStatement();
+            statement.executeUpdate(mysql);
             System.out.println("Успех создания");
             connection.commit();
         } catch (Throwable e) {
             System.out.println("Таблица уже существует");
             try {
                 connection.rollback();
-                preparedStatement.close();
+                statement.close();
                 connection.close();
             } catch (Exception ignore) {
                 e.printStackTrace();
@@ -40,18 +40,18 @@ public class UserDaoJDBCImpl implements UserDao {
         }
     }
     public void dropUsersTable() { //удалить табл пользователей
-        PreparedStatement preparedStatement = null;
+        Statement statement = null;
         String mysql = "DROP TABLE IF EXISTS users";
         try {
             connection.setAutoCommit(false);
-            preparedStatement = connection.prepareStatement(mysql);
-            preparedStatement.executeUpdate();
+            statement = connection.createStatement();
+            statement.executeUpdate(mysql);
             System.out.println("Успех удаления");
             connection.commit();
         } catch (Throwable e) {
             System.out.println("Таблица не существует");
             try {
-                preparedStatement.close();
+                statement.close();
                 connection.close();
                 connection.rollback();
             } catch (Exception ignore) {
@@ -136,19 +136,19 @@ public class UserDaoJDBCImpl implements UserDao {
         return userList;
     }
     public void cleanUsersTable() { //чистая т ю
-        PreparedStatement preparedStatement = null;
+        Statement statement = null;
         String mysql = "TRUNCATE TABLE users";
         try {
             connection.setAutoCommit(false);
-            preparedStatement = connection.prepareStatement(mysql);
-            preparedStatement.executeUpdate();
+            statement = connection.createStatement();
+            statement.executeUpdate(mysql);
             System.out.println("Успех очищения таблицы");
             connection.commit();
         } catch (Throwable e) {
             System.out.println("Ошибка очищения");
             try {
                 connection.rollback();
-                preparedStatement.close();
+                statement.close();
                 connection.close();
             } catch (Exception ignore) {
                 e.printStackTrace();
