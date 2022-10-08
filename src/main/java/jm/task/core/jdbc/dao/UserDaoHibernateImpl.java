@@ -77,10 +77,15 @@ public class UserDaoHibernateImpl implements UserDao {
 
     @Override
     public void saveUser(String name, String lastName, byte age) { //сохранить пользователя
-        Session session = Util.getSessionFactory().getCurrentSession();
-        session.beginTransaction();
-        session.save(new User(name, lastName, age));
-        session.getTransaction().commit();
+        try (Session session = Util.getSessionFactory().getCurrentSession()){
+            session.beginTransaction();
+            session.save(new User(name, lastName, age));
+            session.getTransaction().commit();
+            System.out.println("Успех добавления");
+        } catch (Throwable e) {
+            System.out.println("Ошибка добавления");
+            Util.getSessionFactory().close();
+        }
         /*Transaction transaction = null;
         Session session = null;
         User userss = new User(name, lastName, age);
@@ -91,9 +96,6 @@ public class UserDaoHibernateImpl implements UserDao {
 
             // save the student object
             session.save(userss);
-            //session.save(lastName);
-            //session.save(age);
-            // commit transaction
             transaction.commit();
         } catch (Throwable e) {
             if (transaction != null) {
@@ -110,7 +112,11 @@ public class UserDaoHibernateImpl implements UserDao {
 
     @Override
     public List<User> getAllUsers() {
-        return null;
+        try (Session session = Util.getSessionFactory().getCurrentSession()) {
+            session.beginTransaction();
+            return (List<User>)session.createSQLQuery("SELECT * FROM users").addEntity(User.class).list();
+        }
+        //return null;
     } //список всех адресов
 
     @Override

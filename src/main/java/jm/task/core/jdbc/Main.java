@@ -20,13 +20,13 @@ public class Main {
         final String testName = "Ivan";
         final String testLastName = "Ivanov";
         final byte testAge = 5;
-        userService.dropUsersTable();//удаление т
-        userService.dropUsersTable();
+        //userService.dropUsersTable();//удаление т
+        //userService.dropUsersTable();
         //userService.createUsersTable();//добавление т
         //userService.createUsersTable();
-        //userService.saveUser("testName", "testLastName", (byte) 1);
-        /*User user = userService.getAllUsers().get(0);
-        if (!testName.equals(user.getName())
+        //userService.saveUser(testName, testLastName, testAge);
+        //User user = userService.getAllUsers().get(0);
+        /*if (!testName.equals(user.getName())
                 || !testLastName.equals(user.getLastName())
                 || testAge != user.getAge()
         ) {
