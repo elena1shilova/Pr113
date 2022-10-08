@@ -9,7 +9,8 @@ import org.hibernate.query.Query;
 import java.util.List;
 
 public class UserDaoHibernateImpl implements UserDao {
-    Session session = Util.getSessionFactory().getCurrentSession();
+    //Session session = Util.getSessionFactory().getCurrentSession();
+    //Transaction tr = null;
     public UserDaoHibernateImpl() {
 
     }
@@ -17,7 +18,8 @@ public class UserDaoHibernateImpl implements UserDao {
 
     @Override
     public void createUsersTable() { //создать таблицу
-        session.beginTransaction();
+       // tr =
+
         String mysql = "CREATE TABLE IF NOT EXISTS `tableuser`.`users` (\n" +
                 "  `ID` INT NOT NULL AUTO_INCREMENT,\n" +
                 "  `NAME` VARCHAR(45) NOT NULL,\n" +
@@ -27,19 +29,23 @@ public class UserDaoHibernateImpl implements UserDao {
                 "        ENGINE = InnoDB\n" +
                 "        DEFAULT CHARACTER SET = utf8";
         //Query query = session.createSQLQuery(mysql).addEntity(User.class);
-        //session.getTransaction().commit();
-        try {
+        //query.executeUpdate();
+        //tr.commit();
+        try (Session session = Util.getSessionFactory().getCurrentSession()){
+            session.beginTransaction();
             Query query = session.createSQLQuery(mysql).addEntity(User.class);
-            session.getTransaction().commit();
+            query.executeUpdate();
+            session.getTransaction();
+                    //.commit();
             System.out.println("Успех создания");
         } catch (Throwable e) {
             System.out.println("Таблица уже существует");
-            try {
+            /*try {
                 session.getTransaction().rollback();
-                session.close();
+                //session.close();
             } catch (Exception ew) {
                 e.printStackTrace();
-            }
+            }*/
 
         }
     }
@@ -47,10 +53,31 @@ public class UserDaoHibernateImpl implements UserDao {
     @Override
     public void dropUsersTable() { //удалить таблицу
 
+        String mysql = "DROP TABLE IF EXISTS users";
+        //Query query = session.createSQLQuery(mysql).addEntity(User.class);
+        //session.getTransaction().commit();
+        try (Session session = Util.getSessionFactory().getCurrentSession()){
+            session.beginTransaction();
+            Query query = session.createSQLQuery(mysql).addEntity(User.class);
+            query.executeUpdate();
+            //session.getTransaction();
+                    //.commit();
+            System.out.println("Успех удаления");
+        } catch (Throwable e) {
+            System.out.println("Таблица не существует");
+           /* try {
+                session.getTransaction().rollback();
+                //session.close();
+            } catch (Exception ignore) {
+                e.printStackTrace();
+            }*/
+
+        }
     }
 
     @Override
     public void saveUser(String name, String lastName, byte age) { //сохранить пользователя
+        Session session = Util.getSessionFactory().getCurrentSession();
         session.beginTransaction();
         session.save(new User(name, lastName, age));
         session.getTransaction().commit();
