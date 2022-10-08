@@ -25,6 +25,7 @@ public class Main {
         //userService.createUsersTable();//добавление т
         //userService.createUsersTable();
         //userService.saveUser(testName, testLastName, testAge);
+        //userService.removeUserById(1);
         //User user = userService.getAllUsers().get(0);
         /*if (!testName.equals(user.getName())
                 || !testLastName.equals(user.getLastName())
@@ -32,15 +33,11 @@ public class Main {
         ) {
             System.out.println("User был некорректно добавлен в базу данных");
         }*/
-        //userService.removeUserById(1);
+
         //System.out.println(testAge == user.getAge());
         //userService.cleanUsersTable();
         //userService.dropUsersTable();
-        /*Session session = Util.getSessionFactory().getCurrentSession();
-        User user1 = new User("name", "lastName", (byte)5);
-        session.beginTransaction();
-        session.save(user1);
-        session.getTransaction().commit();*/
+
     }
 
 
